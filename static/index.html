@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>One day one post</title>
+    <link rel="icon" type="image/x-icon" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<div class="container header">
+    <div class="row">
+        главная страница
+    </div>
+</div>
+
+<div class="container history">
+    <div class="row">
+
+    </div>
+</div>
+
+<div class="container new-post">
+    <div class="row">
+        <div contenteditable="true" id="new-post" oncontextmenu="DblClickNewPost()">
+            <p>«Там видно будет», — сказал себе Степан Аркадьич и, встав, надел серый халат на голубой шелковой подкладке, закинул кисти узлом и, вдоволь забрав воздуха в свой широкий грудной ящик, привычным бодрым шагом вывернутых ног, так легко носивших его полное тело, подошел к окну, поднял стору и громко позвонил. На звонок тотчас же вошел старый друг, камердинер Матвей, неся платье, сапоги и телеграмму. Вслед за Матвеем вошел и цирюльник с припасами для бритья.</p>
+            <p>— Из присутствия есть бумаги? — спросил Степан Аркадьич, взяв телеграмму и садясь к зеркалу.</p>
+            <p>— На столе, — отвечал Матвей, взглянул вопросительно, с участием, на барина и, подождав немного, прибавил с хитрою улыбкой: — От хозяина извозчика приходили.</p>
+            <p>Степан Аркадьич ничего не ответил и только в зеркало взглянул на Матвея; во взгляде, которым они встретились в зеркале, видно было, как они понимают друг друга. Взгляд Степана Аркадьича как будто спрашивал: «Это зачем ты говоришь? разве ты не знаешь?»</p>
+        </div>
+
+        <button type="submit" id="new-post-submit">Добавить</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <pre id="output"></pre>
+    </div>
+</div>
+
+
+<script type="application/javascript">
+    (function(){
+        let new_post = document.getElementById('new-post'),
+            new_post_submit = document.getElementById('new-post-submit'),
+            output = document.getElementById('output');
+
+        let disabled = 'disabled';
+
+        new_post_submit.addEventListener('click', e=>{
+            e.target.setAttribute(disabled, disabled)
+            fetch('/post', {
+                method: 'POST',
+                body: JSON.stringify({post: new_post.innerHTML})
+            }).then(r=>{return r.json()}).then(data=>{
+                output.innerHTML = JSON.stringify(data)
+                e.target.removeAttribute(disabled)
+            })
+        })
+
+        // new_post.addEventListener('input', ()=>{
+        //     alert('1235')
+        // });
+        //
+        // new_post.addEventListener('keypress', ()=>{
+        //     alert('keypress')
+        // });
+
+        window['DblClickNewPost'] = function (e) {
+            console.log('DblClickNewPost')
+        }
+
+    })();
+</script>
+</body>
+</html>
