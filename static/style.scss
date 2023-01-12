@@ -23,6 +23,24 @@ button[type=submit] {
 
 }
 
+.container.history {
+  margin-top: 50px;
+
+  .row {
+    .post {
+      margin-bottom: 50px;
+      padding: 10px;
+      box-shadow: 0 0 5px lighten(grey, 20%);
+      border-radius: 5px;
+      cursor: default;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
 .new-post {
   .row {
     padding: 0 0 20px 0;

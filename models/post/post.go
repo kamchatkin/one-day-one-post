@@ -7,6 +7,7 @@ import (
 
 // Post объект записи
 type Post struct {
+	Id   int64     `json:"id"`
 	Text string    `json:"post"`
 	Time time.Time `json:"created_at"`
 }
@@ -21,6 +22,6 @@ func (p *Post) SqlCreate() string {
 		tableName, fieldCreatedAt, fieldText, time.Now().Format(time.RFC3339), p.Text)
 }
 
-func SqlSelect() string {
-	return fmt.Sprintf("select * from `%s` order by id desc limit 10", tableName)
+func SqlSelect(limit int) string {
+	return fmt.Sprintf("select * from `%s` order by id desc limit %d", tableName, limit)
 }

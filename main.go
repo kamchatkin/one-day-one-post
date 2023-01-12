@@ -7,7 +7,7 @@ import (
 	"one-day-one-post/db"
 	modelPost "one-day-one-post/models/post"
 	"one-day-one-post/static"
-	"one-day-one-post/utils"
+	"strconv"
 	"time"
 )
 
@@ -15,46 +15,22 @@ func main() {
 	defer db.Close()
 
 	http.HandleFunc("/", index)
-	http.HandleFunc("/post", post)
-	http.HandleFunc("/style.css", style)
-	http.HandleFunc("/style.css.map", styleMap)
-	http.HandleFunc("/favicon.ico", faviconIco)
-	http.HandleFunc("/favicon.png", favicon)
+	http.HandleFunc("/api/posts", apiPosts)
 
-	http.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte("404. Not Found"))
-		w.WriteHeader(http.StatusNotFound)
-	})
+	http.HandleFunc("/post", post)
+
+	http.HandleFunc("/style.css", style)
+	http.HandleFunc("/favicon.png", favicon)
 
 	_ = http.ListenAndServe(":8080", nil)
 }
 
 // index список постов
 func index(w http.ResponseWriter, _ *http.Request) {
-	rows, err := db.DB.Query(modelPost.SqlSelect())
-	defer rows.Close()
-	if err != nil {
-		panic(err)
-	}
-
-	for rows.Next() {
-		var (
-			id        int64
-			createdAt string
-			text      string
-		)
-		err = rows.Scan(&id, &createdAt, &text)
-		if err != nil {
-			panic(err)
-		}
-
-		textRunes := []rune(text)
-		fmt.Printf("id: %d, created_at: %s, text: %s \n\n", id, createdAt, string(textRunes[0:utils.MaxRune(textRunes, 50)]))
-	}
-
 	_, _ = w.Write(static.IndexPage)
 }
 
+// post запись поста
 func post(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json; charset=utf-8")
 
@@ -86,23 +62,54 @@ func post(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// apiPosts получение списка постов
+func apiPosts(w http.ResponseWriter, r *http.Request) {
+	getParams := r.URL.Query()
+
+	quantity := 10
+	quantityParamName := "quantity"
+	if getParams.Has(quantityParamName) {
+		getQuantity, err := strconv.Atoi(getParams.Get(quantityParamName))
+		if err == nil && getQuantity > 0 && getQuantity < 50 {
+			quantity = getQuantity
+		}
+	}
+
+	rows, err := db.DB.Query(modelPost.SqlSelect(quantity))
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	var posts []*modelPost.Post
+	for rows.Next() {
+		post := &modelPost.Post{}
+		var timeInDB string
+
+		err = rows.Scan(&post.Id, &timeInDB, &post.Text)
+		if err != nil {
+			panic(err)
+		}
+		post.Time, err = time.Parse(time.RFC3339, timeInDB)
+		if err != nil {
+			post.Time = time.Time{}
+		}
+
+		posts = append(posts, post)
+	}
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"ok":    true,
+		"posts": posts,
+	})
+}
+
 func style(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Add("Content-Type", "text/css")
 	_, _ = w.Write([]byte(static.StylePage))
 }
 
-func styleMap(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Add("Content-Type", "text/plain")
-	_, _ = w.Write([]byte(static.StyleMapPage))
-}
-
 func favicon(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Add("Content-Type", "image/png")
 	_, _ = w.Write(static.FaviconImage)
-}
-
-func faviconIco(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Add("Location", "/favicon.png")
-	w.WriteHeader(http.StatusPermanentRedirect)
-	_, _ = w.Write([]byte{})
 }

@@ -20,6 +20,20 @@ button[type=submit] {
   min-width: 800px;
 }
 
+.container.history {
+  margin-top: 50px;
+}
+.container.history .row .post {
+  margin-bottom: 50px;
+  padding: 10px;
+  box-shadow: 0 0 5px #b3b3b3;
+  border-radius: 5px;
+  cursor: default;
+}
+.container.history .row .post:last-child {
+  margin-bottom: 0;
+}
+
 .new-post .row {
   padding: 0 0 20px 0;
 }
