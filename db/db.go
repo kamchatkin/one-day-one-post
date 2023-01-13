@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"os"
+	"path/filepath"
 )
 
 // DB активное соединение с БД
@@ -16,7 +17,7 @@ func Setup(dbFileName string) {
 		dbFileName = "posts.sqlite"
 	}
 
-	wordDir, err := os.Getwd()
+	wordDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		panic("не удалось получить рабочую директорию")
 	}
