@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	db.Setup("") // @todo брать имя базы из аргументов
 	defer db.Close()
 
 	http.HandleFunc("/", index)
