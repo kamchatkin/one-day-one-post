@@ -22,6 +22,7 @@ func main() {
 
 	http.HandleFunc("/style.css", style)
 	http.HandleFunc("/favicon.png", favicon)
+	http.HandleFunc("/robots.txt", robots)
 
 	_ = http.ListenAndServe(":8080", nil)
 }
@@ -113,4 +114,9 @@ func style(w http.ResponseWriter, _ *http.Request) {
 func favicon(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Add("Content-Type", "image/png")
 	_, _ = w.Write(static.FaviconImage)
+}
+
+func robots(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Add("Content-Type", "text/plain")
+	_, _ = w.Write([]byte("User-agent: *\nDisallow: /"))
 }
